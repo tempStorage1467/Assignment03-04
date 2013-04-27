@@ -31,6 +31,8 @@ bool canOfferUniversalCoverage(Set<string>& cities,
                                int numHospitals,
                                Vector< Set<string> >& result);
 
+bool doesLocationCombinationCoverCities(Set<string> cities,
+                                        Vector< Set<string> >& result);
 
 bool assertEquals(bool expected, bool actual) {
     if (expected == actual) {
@@ -38,22 +40,6 @@ bool assertEquals(bool expected, bool actual) {
     } else {
         cout << "Expected: " << expected << "; Actual: " << actual << endl;
         return false;
-    }
-}
-
-bool doesLocationCombinationCoverCities(Set<string> cities,
-                                        Vector< Set<string> >& result) {
-    if (cities.size() == 0) {
-        // Base Case: Cities is empty; All cities covered
-        return true;
-    } else if (result.size() == 0) {
-        // Base Case: All hospital locations taken into account
-        return false;
-    } else {
-        Set<string> firstHospitalCoverage = result[0];
-        result.remove(0);
-        Set<string> uncoveredCities = cities - firstHospitalCoverage;
-        return doesLocationCombinationCoverCities(uncoveredCities, result);
     }
 }
 
@@ -129,6 +115,22 @@ void runTests() {
     testCanOfferUniversalCoverage();
 }
 
+bool doesLocationCombinationCoverCities(Set<string> cities,
+                                        Vector< Set<string> >& result) {
+    if (cities.size() == 0) {
+        // Base Case: Cities is empty; All cities covered
+        return true;
+    } else if (result.size() == 0) {
+        // Base Case: All hospital locations taken into account
+        return false;
+    } else {
+        Set<string> firstHospitalCoverage = result[0];
+        result.remove(0);
+        Set<string> uncoveredCities = cities - firstHospitalCoverage;
+        return doesLocationCombinationCoverCities(uncoveredCities, result);
+    }
+}
+
 bool canOfferUniversalCoverage(Set<string>& cities,
                                Vector< Set<string> >& locations,
                                int numHospitals,
@@ -145,31 +147,20 @@ bool canOfferUniversalCoverage(Set<string>& cities,
     if (doesLocationCombinationCoverCities(cities, result)) {
         return true;
     } else if (locations.size() == 0) {
+        result.clear();
         return false;
     } else {
         Set<string> firstLocation = locations[0];
         Vector< Set<string> > combination;
         combination.add(firstLocation);
+        locations.remove(0);
         canOfferUniversalCoverage(cities, locations, numHospitals, combination);
 
-        if (locations.size() < 2) return false;
-        combination.add(locations[1]);
-        canOfferUniversalCoverage(cities, locations, numHospitals, combination);
-        
-        locations.remove(0);
-        combination.clear();
+        if (locations.size() < 1) return false;
+        combination.add(locations[0]);
         canOfferUniversalCoverage(cities, locations, numHospitals, combination);
     }
-    
-    // take 0th element out of $locations and insert into $result
-    //   keep appending into result; this gives 1; 1, 2; 1, 2, 3
-    
-    // STEP 2: Iteratr Over Groupings of Locations That
-    //   Look for a Union function on Sets that does Set subtraction
-    //     when locations - cities... recursively look for empty cities
-
-
-    // STEP 3: Clear() $result and return false
+    // STEP 2: Clear() $result and return false
     result.clear();
     return false;
 }
