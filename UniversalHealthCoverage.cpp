@@ -27,7 +27,7 @@ using namespace std;
  * result parameter.
  */
 bool canOfferUniversalCoverage(Set<string>& cities,
-                               Vector< Set<string> >& locations,
+                               Vector< Set<string> > locations,
                                int numHospitals,
                                Vector< Set<string> >& result);
 
@@ -95,12 +95,16 @@ void testCanOfferUniversalCoverage() {
     hospitalCoverage2 += "A", "C", "D";
 
     Set<string> hospitalCoverage3;
-    hospitalCoverage3 += "C", "E", "F";
+    hospitalCoverage3 += "B", "F";
+    
+    Set<string> hospitalCoverage4;
+    hospitalCoverage4 += "C", "E", "F";
 
     Vector< Set<string> > locations1;
     locations1.add(hospitalCoverage1);
     locations1.add(hospitalCoverage2);
     locations1.add(hospitalCoverage3);
+    locations1.add(hospitalCoverage4);
 
     Vector< Set<string> > result1;
     
@@ -132,7 +136,7 @@ bool doesLocationCombinationCoverCities(Set<string> cities,
 }
 
 bool canOfferUniversalCoverage(Set<string>& cities,
-                               Vector< Set<string> >& locations,
+                               Vector< Set<string> > locations,
                                int numHospitals,
                                Vector< Set<string> >& result) {
     // STEP 1: Determine Combinations of Locations <= numHospitals
@@ -147,25 +151,19 @@ bool canOfferUniversalCoverage(Set<string>& cities,
     if (doesLocationCombinationCoverCities(cities, result)) {
         return true;
     } else if (locations.size() == 0) {
-        result.clear();
         return false;
     } else {
         Set<string> firstLocation = locations[0];
-        Vector< Set<string> > combination = result;
-        combination.add(firstLocation);
         locations.remove(0);
-        cout << "Locations: " << locations << endl;
-        cout << "Combination: " << combination << endl;
-        canOfferUniversalCoverage(cities, locations, numHospitals, combination);
+        cout << "1Locations: " << locations << endl;
+        cout << "1Result: " << result << endl;
+        canOfferUniversalCoverage(cities, locations, numHospitals, result);
 
-        cout << "Locations: " << locations << endl;
-        cout << "Result: " << result << endl;
+        result.add(firstLocation);
+        cout << "2Locations: " << locations << endl;
+        cout << "2Result: " << result << endl;
         canOfferUniversalCoverage(cities, locations, numHospitals, result);
     }
-
-    // STEP 2: Clear() $result and return false
-    result.clear();
-    return false;
 }
 
 
