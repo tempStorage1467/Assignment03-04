@@ -156,9 +156,9 @@ bool canOfferUniversalCoverage(Set<string>& cities,
         locations.remove(0);
         canOfferUniversalCoverage(cities, locations, numHospitals, combination);
         
-        result.remove(0);
-        canOfferUniversalCoverage(cities, locations, numHospitals, combination);
+        canOfferUniversalCoverage(cities, locations, numHospitals, result);
     }
+
     // STEP 2: Clear() $result and return false
     result.clear();
     return false;
