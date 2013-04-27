@@ -151,13 +151,12 @@ bool canOfferUniversalCoverage(Set<string>& cities,
         return false;
     } else {
         Set<string> firstLocation = locations[0];
-        Vector< Set<string> > combination;
+        Vector< Set<string> > combination = result;
         combination.add(firstLocation);
         locations.remove(0);
         canOfferUniversalCoverage(cities, locations, numHospitals, combination);
-
-        if (locations.size() < 1) return false;
-        combination.add(locations[0]);
+        
+        result.remove(0);
         canOfferUniversalCoverage(cities, locations, numHospitals, combination);
     }
     // STEP 2: Clear() $result and return false
