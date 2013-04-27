@@ -154,8 +154,12 @@ bool canOfferUniversalCoverage(Set<string>& cities,
         Vector< Set<string> > combination = result;
         combination.add(firstLocation);
         locations.remove(0);
+        cout << "Locations: " << locations << endl;
+        cout << "Combination: " << combination << endl;
         canOfferUniversalCoverage(cities, locations, numHospitals, combination);
-        
+
+        cout << "Locations: " << locations << endl;
+        cout << "Result: " << result << endl;
         canOfferUniversalCoverage(cities, locations, numHospitals, result);
     }
 
