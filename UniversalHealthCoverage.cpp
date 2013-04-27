@@ -32,7 +32,7 @@ bool canOfferUniversalCoverage(Set<string>& cities,
                                Vector< Set<string> >& result);
 
 
-bool assertEqals(bool expected, bool actual) {
+bool assertEquals(bool expected, bool actual) {
     if (expected == actual) {
         return true;
     } else {
@@ -52,7 +52,8 @@ bool doesLocationCombinationCoverCities(Set<string> cities,
     } else {
         Set<string> firstHospitalCoverage = result[0];
         result.remove(0);
-        return doesLocationCombinationCoverCities(cities - firstHospitalCoverage, result);
+        Set<string> uncoveredCities = cities - firstHospitalCoverage;
+        return doesLocationCombinationCoverCities(uncoveredCities, result);
     }
 }
 
@@ -74,11 +75,58 @@ void testDoesLocationCombinationCoverCities() {
     locationCombination.add(hospital2);
     locationCombination.add(hospital3);
 
-    assertEqals(true, doesLocationCombinationCoverCities(cities1, locationCombination));
+    assertEquals(true, doesLocationCombinationCoverCities(cities1,
+                                                         locationCombination));
+    Set<string> cities2;
+    cities2 += "A", "B", "C", "D", "E", "F";
+    
+    Set<string> hospitalA1;
+    hospitalA1 += "A", "B", "C";
+    
+    Set<string> hospitalA2;
+    hospitalA2 += "A", "C", "D";
+    
+    Set<string> hospitalA3;
+    hospitalA3 += "B", "F";
+    
+    Vector< Set<string> > locationCombination2;
+    locationCombination2.add(hospitalA1);
+    locationCombination2.add(hospitalA2);
+    locationCombination2.add(hospitalA3);
+
+    assertEquals(false, doesLocationCombinationCoverCities(cities2,
+                                                         locationCombination2));
+}
+
+void testCanOfferUniversalCoverage() {
+    Set<string> cities1;
+    cities1 += "A", "B", "C", "D", "E", "F";
+
+    Set<string> hospitalCoverage1;
+    hospitalCoverage1 += "A", "B", "C";
+
+    Set<string> hospitalCoverage2;
+    hospitalCoverage2 += "A", "C", "D";
+
+    Set<string> hospitalCoverage3;
+    hospitalCoverage3 += "C", "E", "F";
+
+    Vector< Set<string> > locations1;
+    locations1.add(hospitalCoverage1);
+    locations1.add(hospitalCoverage2);
+    locations1.add(hospitalCoverage3);
+
+    Vector< Set<string> > result1;
+    
+    assertEquals(true, canOfferUniversalCoverage(cities1,
+                              locations1,
+                              3,
+                              result1));
 }
 
 void runTests() {
     testDoesLocationCombinationCoverCities();
+    testCanOfferUniversalCoverage();
 }
 
 bool canOfferUniversalCoverage(Set<string>& cities,
@@ -104,8 +152,12 @@ bool canOfferUniversalCoverage(Set<string>& cities,
         combination.add(firstLocation);
         canOfferUniversalCoverage(cities, locations, numHospitals, combination);
 
-        if (locations.size() < 2) return true;
+        if (locations.size() < 2) return false;
         combination.add(locations[1]);
+        canOfferUniversalCoverage(cities, locations, numHospitals, combination);
+        
+        locations.remove(0);
+        combination.clear();
         canOfferUniversalCoverage(cities, locations, numHospitals, combination);
     }
     
@@ -118,6 +170,8 @@ bool canOfferUniversalCoverage(Set<string>& cities,
 
 
     // STEP 3: Clear() $result and return false
+    result.clear();
+    return false;
 }
 
 
