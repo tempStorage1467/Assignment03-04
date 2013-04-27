@@ -32,14 +32,53 @@ bool canOfferUniversalCoverage(Set<string>& cities,
                                Vector< Set<string> >& result);
 
 
-int main() {
-    /* TODO: Add testing code here! */
-    return 0;
+bool assertEqals(bool expected, bool actual) {
+    if (expected == actual) {
+        return true;
+    } else {
+        cout << "Expected: " << expected << "; Actual: " << actual << endl;
+        return false;
+    }
 }
 
-bool doesLocationCombinationCoverCities(Set<string>& cities,
+bool doesLocationCombinationCoverCities(Set<string> cities,
                                         Vector< Set<string> >& result) {
-    
+    if (cities.size() == 0) {
+        // Base Case: Cities is empty; All cities covered
+        return true;
+    } else if (result.size() == 0) {
+        // Base Case: All hospital locations taken into account
+        return false;
+    } else {
+        Set<string> firstHospitalCoverage = result[0];
+        result.remove(0);
+        return doesLocationCombinationCoverCities(cities - firstHospitalCoverage, result);
+    }
+}
+
+void testDoesLocationCombinationCoverCities() {
+    Set<string> cities1;
+    cities1 += "A", "B", "C", "D", "E", "F";
+
+    Set<string> hospital1;
+    hospital1 += "A", "B", "C";
+
+    Set<string> hospital2;
+    hospital2 += "A", "C", "D";
+
+    Set<string> hospital3;
+    hospital3 += "C", "E", "F";
+
+    Vector< Set<string> > locationCombination;
+    locationCombination.add(hospital1);
+    locationCombination.add(hospital2);
+    locationCombination.add(hospital3);
+
+    assertEqals(true, doesLocationCombinationCoverCities(cities1, locationCombination));
+}
+
+void runTests() {
+    testDoesLocationCombinationCoverCities();
 }
 
 bool canOfferUniversalCoverage(Set<string>& cities,
@@ -61,9 +100,14 @@ bool canOfferUniversalCoverage(Set<string>& cities,
         return false;
     } else {
         Set<string> firstLocation = locations[0];
-        canOfferUniversalCoverage(cities, locations);
+        Vector< Set<string> > combination;
+        combination.add(firstLocation);
+        canOfferUniversalCoverage(cities, locations, numHospitals, combination);
+
+        if (locations.size() < 2) return true;
+        combination.add(locations[1]);
+        canOfferUniversalCoverage(cities, locations, numHospitals, combination);
     }
-    canOfferUniversalCoverage(1, 2)
     
     // take 0th element out of $locations and insert into $result
     //   keep appending into result; this gives 1; 1, 2; 1, 2, 3
@@ -98,3 +142,8 @@ bool canOfferUniversalCoverage(Set<string>& cities,
     
     // STEP 3: Clear() $result and return false
 //}
+
+int main() {
+    runTests();
+    return 0;
+}
