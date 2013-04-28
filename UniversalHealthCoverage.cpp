@@ -29,7 +29,7 @@ using namespace std;
 bool canOfferUniversalCoverage(Set<string>& cities,
                                Vector< Set<string> > locations,
                                int numHospitals,
-                               Vector< Set<string> >& result);
+                               Vector< Set<string> > result);
 
 bool doesLocationCombinationCoverCities(Set<string> cities,
                                         Vector< Set<string> >& result);
@@ -138,7 +138,8 @@ bool doesLocationCombinationCoverCities(Set<string> cities,
 bool canOfferUniversalCoverage(Set<string>& cities,
                                Vector< Set<string> > locations,
                                int numHospitals,
-                               Vector< Set<string> >& result) {
+                               Vector< Set<string> > result) {
+    cout << result.size() << endl;
     // STEP 1: Determine Combinations of Locations <= numHospitals
     //   Iterate over each element in the vector $locations
     //   and determine all combinations;
@@ -159,7 +160,9 @@ bool canOfferUniversalCoverage(Set<string>& cities,
         cout << "1Result: " << result << endl;
         canOfferUniversalCoverage(cities, locations, numHospitals, result);
 
+        cout << result.size() << endl;
         result.add(firstLocation);
+        cout << result.size() << endl;
         cout << "2Locations: " << locations << endl;
         cout << "2Result: " << result << endl;
         canOfferUniversalCoverage(cities, locations, numHospitals, result);
