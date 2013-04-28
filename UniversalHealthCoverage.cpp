@@ -9,6 +9,7 @@
  */
 #include <iostream>
 #include <string>
+#include <vector>
 #include "set.h"
 #include "vector.h"
 #include "console.h"
@@ -34,7 +35,8 @@ bool canOfferUniversalCoverage(Set<string>& cities,
 bool doesLocationCombinationCoverCities(Set<string> cities,
                                         Vector< Set<string> > result);
 Vector< Set<string> > evaluateCombinations(const Set<string> cities,
-                        Vector< Vector< Set<string> > > coverageCombinations);
+                        Vector< Vector< Set<string> > > coverageCombinations,
+                                           const int numHospitals);
 Vector< Vector< Set<string> > > getAllPossibleLocationCombinations(
                                             Vector< Set<string> > locations,
                                             const int numHospitals,
@@ -175,7 +177,8 @@ void testEvaluateCombinations() {
     coverageCombinations1.add(layoutPlan2);
     coverageCombinations1.add(layoutPlan3);
     Vector< Set<string> > result1 = evaluateCombinations(cities1,
-                                                        coverageCombinations1);
+                                                         coverageCombinations1,
+                                                         3);
     assertEquals(layoutPlan3, result1);
 
     // TEST2
@@ -186,7 +189,8 @@ void testEvaluateCombinations() {
     coverageCombinations2.add(layoutPlan2);
     coverageCombinations2.add(layoutPlan4);
     Vector< Set<string> > result2 = evaluateCombinations(cities2,
-                                                        coverageCombinations2);
+                                                         coverageCombinations2,
+                                                         3);
     Vector< Set<string> > layoutPlanE;
     assertEquals(layoutPlanE, result2);
 }
@@ -236,14 +240,34 @@ bool doesLocationCombinationCoverCities(Set<string> cities,
 Vector< Vector< Set<string> > > getAllPossibleLocationCombinations(
                                             Vector< Set<string> > locations,
                                             const int numHospitals,
-                                            int start,
-                                            int end,
-                                            int current) {
+                                            const int startIndex,
+                                            const int endIndex,
+                                            const int currentIndex,
+                                Vector< Vector< Set<string> > > thusFar) {
 
     Vector< Vector< Set<string> > > results;
-    if (locations.size() == 0) {
-        return results;
+    if (endIndex == locations.size() - 1 && currentIndex == endIndex) {
+        // Generated {1; 1, 2; 1, 2, 3; 1, 2, 3, 4}
+        // Need to start generating {2; 2, 3; 2, 3, 4}
+        Vector< Set<string> > subVector;
+        for (int i = startIndex; i < locations.size(); i++) {
+
+        }
+        return thusFar + getAllPossibleLocationCombinations(locations,
+                                                  numHospitals,
+                                                  startIndex + 1,
+                                                  endIndex,
+                                                  startIndex + 1,
+                                                  thusFar);
     } else {
+        
+        getAllPossibleLocationCombinations(locations,
+                                           numHospitals,
+                                           startIndex,
+                                           endIndex,
+                                           currentIndex + 1,
+                                           thusFar);
+/*
         Set<string> hospitalCoverage1;
         hospitalCoverage1 += "A", "B", "C";
         
@@ -277,11 +301,13 @@ Vector< Vector< Set<string> > > getAllPossibleLocationCombinations(
         coverageCombinations1.add(layoutPlan2);
         coverageCombinations1.add(layoutPlan3);
         return coverageCombinations1;
+*/
     }
 }
 
 Vector< Set<string> > evaluateCombinations(const Set<string> cities,
-                    Vector< Vector< Set<string> > > coverageCombinations) {
+                    Vector< Vector< Set<string> > > coverageCombinations,
+                                           const int numHospitals) {
     // need to set the coverage combination here or it will be
     //   blank for some reason after
     Vector< Set<string> > blank;
@@ -292,12 +318,15 @@ Vector< Set<string> > evaluateCombinations(const Set<string> cities,
         Vector< Set<string> > blank;
         return blank;
     } else {
-        if (doesLocationCombinationCoverCities(cities,
-                                                  toEvaluate)) {
+        if (toEvaluate.size() <= numHospitals &&
+            doesLocationCombinationCoverCities(cities,
+                                               toEvaluate)) {
             return toEvaluate;
         } else {
             coverageCombinations.remove(0);
-            return evaluateCombinations(cities, coverageCombinations);
+            return evaluateCombinations(cities,
+                                        coverageCombinations,
+                                        numHospitals);
         }
     }
 }
@@ -318,7 +347,8 @@ bool canOfferUniversalCoverage(Set<string>& cities,
 
     // STEP 2: Evaluate whether any possible combination works
     Vector< Set<string> > resultCombo = evaluateCombinations(cities,
-                                                    coverageCombinations);
+                                                    coverageCombinations,
+                                                    numHospitals);
     if (resultCombo.size() == 0) {
         return false;
     } else {
