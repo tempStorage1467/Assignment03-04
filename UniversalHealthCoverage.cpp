@@ -139,7 +139,9 @@ bool canOfferUniversalCoverage(Set<string>& cities,
                                Vector< Set<string> > locations,
                                int numHospitals,
                                Vector< Set<string> > result) {
-    cout << result.size() << endl;
+    Set<string> blank;
+    const Set<string> firstLocation = (locations.size() != 0) ? locations[0] : blank;
+    Vector< Set<string> > combination = result;
     // STEP 1: Determine Combinations of Locations <= numHospitals
     //   Iterate over each element in the vector $locations
     //   and determine all combinations;
@@ -149,23 +151,28 @@ bool canOfferUniversalCoverage(Set<string>& cities,
     //   and evaluate it to determine whether it covers all cities.
     //   This evaluation is done by subtracting recursively from the
     //   combination, stored in $result, involving each element;
-    if (doesLocationCombinationCoverCities(cities, result)) {
+    if (result.size() <= numHospitals &&
+          doesLocationCombinationCoverCities(cities, result)) {
+        return true;
+    } else if (locations.size() <= numHospitals &&
+          doesLocationCombinationCoverCities(cities, locations)) {
+        result = locations;
+        cout << "Location Found" << endl;
         return true;
     } else if (locations.size() == 0) {
+        cout << "Location 0" << endl;
         return false;
     } else {
-        Set<string> firstLocation = locations[0];
-        locations.remove(0);
         cout << "1Locations: " << locations << endl;
         cout << "1Result: " << result << endl;
-        canOfferUniversalCoverage(cities, locations, numHospitals, result);
-
-        cout << result.size() << endl;
-        result.add(firstLocation);
-        cout << result.size() << endl;
-        cout << "2Locations: " << locations << endl;
-        cout << "2Result: " << result << endl;
-        canOfferUniversalCoverage(cities, locations, numHospitals, result);
+        combination.add(firstLocation);
+        locations.remove(0);
+        canOfferUniversalCoverage(cities, locations, numHospitals, combination);
+        
+        if (result.size() > 0) {
+         result.remove(0);   
+        }
+        canOfferUniversalCoverage(cities, locations, numHospitals, combination);
     }
 }
 
