@@ -39,8 +39,7 @@ Vector< Set<string> > evaluateCombinations(const Set<string> cities,
                                            const int numHospitals);
 Vector< Vector< Set<string> > > getAllPossibleLocationCombinations(
                                             Vector< Set<string> > locations,
-                                            const int numHospitals,
-                                            int i);
+                                            const int numHospitals);
 
 bool assertEquals(bool expected, bool actual) {
     if (expected == actual) {
@@ -208,16 +207,16 @@ void testGetAllPossibleLocationCombinations() {
 
     Vector< Vector< Set<string> > > locationsCombinations;
     locationsCombinations =
-      getAllPossibleLocationCombinations(locations, 3, 0);
+      getAllPossibleLocationCombinations(locations, 3);
     
     Vector< Vector< Set<string> > > expectedLocationsCombinations;
     
 }
 
 void runTests() {
-    testDoesLocationCombinationCoverCities();
-    testEvaluateCombinations();
-    testGetAllPossibleLocationCombinations();
+   // testDoesLocationCombinationCoverCities();
+   // testEvaluateCombinations();
+   // testGetAllPossibleLocationCombinations();
     testCanOfferUniversalCoverage();
 }
 
@@ -237,36 +236,53 @@ bool doesLocationCombinationCoverCities(Set<string> cities,
     }
 }
 
+Vector< Set<string> > copyLocations(Vector< Set<string> > locations,
+                                    int start, int end) {
+    Vector< Set<string> > result;
+    for (int i = start; i <= end; i++) {
+        result.add(locations[i]);
+    }
+    return result;
+}
+
 Vector< Vector< Set<string> > > getAllPossibleLocationCombinations(
                                             Vector< Set<string> > locations,
-                                            const int numHospitals,
-                                            const int startIndex,
-                                            const int endIndex,
-                                            const int currentIndex,
-                                Vector< Vector< Set<string> > > thusFar) {
+                                            const int numHospitals) {
+    Vector< Vector< Set<string> > > result;
+    Vector< Set<string> > temp;
 
-    Vector< Vector< Set<string> > > results;
-    if (endIndex == locations.size() - 1 && currentIndex == endIndex) {
-        // Generated {1; 1, 2; 1, 2, 3; 1, 2, 3, 4}
-        // Need to start generating {2; 2, 3; 2, 3, 4}
-        Vector< Set<string> > subVector;
-        for (int i = startIndex; i < locations.size(); i++) {
-
+    Vector< Set<string> > helper;
+    int counter = 0;
+    int tempCounter = 0;
+    for (int i = 0; i < locations.size(); i++) {
+        helper = copyLocations(locations, i+1, locations.size() - 1);
+        temp.add(locations[i]);
+        cout << "To Add Outter: " << temp << endl;
+        result.add(temp);
+        for (int j = 0; j < helper.size(); j++) {
+            temp.add(helper[j]);
+                    cout << "To Add Inner: " << temp << endl;
+            result.add(temp);
+            if (j == helper.size() - 1) {
+                cout << i + 2 + counter << endl;
+                if ((i + 2 + counter) <= locations.size()) {
+                    helper = copyLocations(locations, i + 2 + counter, locations.size() - 1);
+                    counter++;
+                    j = -1;
+                }
+                temp.clear();
+                temp.add(locations[i]);
+            }
         }
-        return thusFar + getAllPossibleLocationCombinations(locations,
-                                                  numHospitals,
-                                                  startIndex + 1,
-                                                  endIndex,
-                                                  startIndex + 1,
-                                                  thusFar);
-    } else {
-        
-        getAllPossibleLocationCombinations(locations,
-                                           numHospitals,
-                                           startIndex,
-                                           endIndex,
-                                           currentIndex + 1,
-                                           thusFar);
+        temp.clear();
+        counter = 0;
+    }
+    cout << "To Be Returned" << endl;
+    for (int i = 0; i < result.size(); i++) {
+        cout << result[i] << "---" << endl;
+    }
+    cout << "END To Be Returned" << endl;
+    return result;
 /*
         Set<string> hospitalCoverage1;
         hospitalCoverage1 += "A", "B", "C";
@@ -302,7 +318,6 @@ Vector< Vector< Set<string> > > getAllPossibleLocationCombinations(
         coverageCombinations1.add(layoutPlan3);
         return coverageCombinations1;
 */
-    }
 }
 
 Vector< Set<string> > evaluateCombinations(const Set<string> cities,
@@ -343,8 +358,12 @@ bool canOfferUniversalCoverage(Set<string>& cities,
     //   you don't want duplicates
     Vector< Vector< Set<string> > > coverageCombinations;
     coverageCombinations = getAllPossibleLocationCombinations(
-                                        locations, numHospitals, 0);
+                                        locations, numHospitals);
 
+    cout << coverageCombinations << endl;
+    for (int i = 0; i < coverageCombinations.size(); i++) {
+        cout << coverageCombinations[i] << "---" << endl;
+    }
     // STEP 2: Evaluate whether any possible combination works
     Vector< Set<string> > resultCombo = evaluateCombinations(cities,
                                                     coverageCombinations,
