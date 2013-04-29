@@ -132,6 +132,12 @@ void testCanOfferUniversalCoverage() {
                               locations1,
                               3,
                               result1));
+    
+    assertEquals(false, canOfferUniversalCoverage(cities1,
+                                                 locations1,
+                                                 2,
+                                                 result1));
+    
 }
 
 void testEvaluateCombinations() {
@@ -193,29 +199,9 @@ void testEvaluateCombinations() {
     assertEquals(layoutPlanE, result2);
 }
 
-void testGetAllPossibleLocationCombinations() {
-    Set<string> hospitalCoverage1;
-    hospitalCoverage1 += "A", "B", "C";
-    
-    Set<string> hospitalCoverage2;
-    hospitalCoverage2 += "A", "C", "D";
-    
-    Vector< Set<string> > locations;
-    locations.add(hospitalCoverage1);
-    locations.add(hospitalCoverage2);
-
-    Vector< Vector< Set<string> > > locationsCombinations;
-    locationsCombinations =
-      getAllPossibleLocationCombinations(locations);
-    
-    Vector< Vector< Set<string> > > expectedLocationsCombinations;
-    
-}
-
 void runTests() {
     testDoesLocationCombinationCoverCities();
     testEvaluateCombinations();
-    testGetAllPossibleLocationCombinations();
     testCanOfferUniversalCoverage();
 }
 
@@ -373,9 +359,6 @@ bool canOfferUniversalCoverage(Set<string>& cities,
     Vector< Vector< Set<string> > > coverageCombinations;
     coverageCombinations = getAllPossibleLocationCombinations(locations);
 
-    for (int i = 0; i < coverageCombinations.size(); i++) {
-        cout << coverageCombinations[i] << "---" << endl;
-    }
     // STEP 2: Evaluate whether any possible combination works
     Vector< Set<string> > resultCombo = evaluateCombinations(cities,
                                                     coverageCombinations,
