@@ -38,8 +38,7 @@ Vector< Set<string> > evaluateCombinations(const Set<string> cities,
                         Vector< Vector< Set<string> > > coverageCombinations,
                                            const int numHospitals);
 Vector< Vector< Set<string> > > getAllPossibleLocationCombinations(
-                                            Vector< Set<string> > locations,
-                                            const int numHospitals);
+                                            Vector< Set<string> > locations);
 
 bool assertEquals(bool expected, bool actual) {
     if (expected == actual) {
@@ -207,16 +206,16 @@ void testGetAllPossibleLocationCombinations() {
 
     Vector< Vector< Set<string> > > locationsCombinations;
     locationsCombinations =
-      getAllPossibleLocationCombinations(locations, 3);
+      getAllPossibleLocationCombinations(locations);
     
     Vector< Vector< Set<string> > > expectedLocationsCombinations;
     
 }
 
 void runTests() {
-   // testDoesLocationCombinationCoverCities();
-   // testEvaluateCombinations();
-   // testGetAllPossibleLocationCombinations();
+    testDoesLocationCombinationCoverCities();
+    testEvaluateCombinations();
+    testGetAllPossibleLocationCombinations();
     testCanOfferUniversalCoverage();
 }
 
@@ -236,88 +235,103 @@ bool doesLocationCombinationCoverCities(Set<string> cities,
     }
 }
 
-Vector< Set<string> > copyLocations(Vector< Set<string> > locations,
-                                    int start, int end) {
-    Vector< Set<string> > result;
-    for (int i = start; i <= end; i++) {
-        result.add(locations[i]);
+/*
+ * Code taken from CS106B lecture.
+ */
+Vector<Set<string> > subsetsOf(Set<string> masterSet) {
+	Vector<Set<string> > result;
+	
+	/* Base case: The only subset of the empty set is the empty set itself. */
+	if (masterSet.isEmpty()) {
+		result += masterSet;
+		return result;
+	}
+	/* Recursive step: Pull out a single element and obtain all subsets of
+	 * the remaining elements.  All of those subsets are subsets of the
+	 * master set, as are all sets formed by taking one of those sets
+	 * and adding the original element back in.
+	 */
+	else {
+		string elem = masterSet.first();
+		
+		foreach (Set<string> subset in subsetsOf(masterSet - elem)) {
+			result += subset;
+			result += subset + elem;
+		}
+		return result;
+	}
+}
+
+string deflateSetOfStrs(Set<string> toCompress) {
+    string compressed;
+    if (toCompress.size() == 0) {
+        return compressed;
+    } else {
+        string elem = toCompress.first();
+        return elem + deflateSetOfStrs(toCompress - elem);
     }
-    return result;
+}
+
+Set<string> deflateVecOfSets(Vector<Set<string> > locations) {
+    Set<string> result;
+    if (locations.size() == 0) {
+        return result;
+    } else {
+        Set<string> singleHospitalCoverage = locations[0];
+        string compressed = deflateSetOfStrs(singleHospitalCoverage);
+        locations.remove(0);
+        result.add(compressed);
+        return result + deflateVecOfSets(locations);
+    }
+}
+
+Set<string> enflateString(string location) {
+    Set<string> result;
+    if (location.size() == 1) {
+        result.add(location.substr(0, 1));
+        return result;
+    } else {
+        result.add(location.substr(0, 1));
+        return result + enflateString(location.substr(1));
+    }
+}
+
+Vector<Set<string > > enflateLocationCombination(Set<string> locationCombo) {
+    Vector<Set<string > > result;
+    if (locationCombo.size() == 0) {
+        return result;
+    } else {
+        string elem = locationCombo.first();
+        locationCombo.remove(elem);
+        result.add(enflateString(elem));
+        return result + enflateLocationCombination(locationCombo);
+    }
+}
+
+Vector< Vector< Set<string> > > enflateCombos(
+                            Vector<Set<string > > compressedLocationCombos) {
+    Vector< Vector< Set<string> > > result;
+    if (compressedLocationCombos.size() == 0) {
+        return result;
+    } else {
+        Set<string> elem = compressedLocationCombos[0];
+        Vector<Set<string > > enflatedLocationCombination =
+        enflateLocationCombination(elem);
+        compressedLocationCombos.remove(0);
+        result.add(enflatedLocationCombination);
+        return result + enflateCombos(compressedLocationCombos);
+    }
 }
 
 Vector< Vector< Set<string> > > getAllPossibleLocationCombinations(
-                                            Vector< Set<string> > locations,
-                                            const int numHospitals) {
-    Vector< Vector< Set<string> > > result;
-    Vector< Set<string> > temp;
-
-    Vector< Set<string> > helper;
-    int counter = 0;
-    int tempCounter = 0;
-    for (int i = 0; i < locations.size(); i++) {
-        helper = copyLocations(locations, i+1, locations.size() - 1);
-        temp.add(locations[i]);
-        cout << "To Add Outter: " << temp << endl;
-        result.add(temp);
-        for (int j = 0; j < helper.size(); j++) {
-            temp.add(helper[j]);
-                    cout << "To Add Inner: " << temp << endl;
-            result.add(temp);
-            if (j == helper.size() - 1) {
-                cout << i + 2 + counter << endl;
-                if ((i + 2 + counter) <= locations.size()) {
-                    helper = copyLocations(locations, i + 2 + counter, locations.size() - 1);
-                    counter++;
-                    j = -1;
-                }
-                temp.clear();
-                temp.add(locations[i]);
-            }
-        }
-        temp.clear();
-        counter = 0;
-    }
-    cout << "To Be Returned" << endl;
-    for (int i = 0; i < result.size(); i++) {
-        cout << result[i] << "---" << endl;
-    }
-    cout << "END To Be Returned" << endl;
-    return result;
-/*
-        Set<string> hospitalCoverage1;
-        hospitalCoverage1 += "A", "B", "C";
-        
-        Set<string> hospitalCoverage2;
-        hospitalCoverage2 += "A", "C", "D";
-        
-        Set<string> hospitalCoverage3;
-        hospitalCoverage3 += "B", "F";
-        
-        Set<string> hospitalCoverage4;
-        hospitalCoverage4 += "C", "E", "F";
-        
-        Set<string> hospitalCoverage5;
-        hospitalCoverage5 += "C", "F";
-
-        Vector< Set<string> > layoutPlan1;
-        layoutPlan1.add(hospitalCoverage1);
-        layoutPlan1.add(hospitalCoverage5);
-        
-        Vector< Set<string> > layoutPlan2;
-        layoutPlan2.add(hospitalCoverage3);
-        layoutPlan2.add(hospitalCoverage5);
-        
-        Vector< Set<string> > layoutPlan3;
-        layoutPlan3.add(hospitalCoverage1);
-        layoutPlan3.add(hospitalCoverage2);
-        layoutPlan3.add(hospitalCoverage4);
-        
-        Vector< Vector< Set<string> > > coverageCombinations1;
-        coverageCombinations1.add(layoutPlan1);
-        coverageCombinations1.add(layoutPlan2);
-        coverageCombinations1.add(layoutPlan3);
-        return coverageCombinations1;
-*/
+                                        Vector< Set<string> > locations) {
+    Set<string> compressed = deflateVecOfSets(locations);
+    
+    Vector<Set<string> > compressedLocationCombos = subsetsOf(compressed);
+    
+    Vector< Vector< Set<string> > > locationCombos =
+    enflateCombos(compressedLocationCombos);
+    return locationCombos;
 }
 
 Vector< Set<string> > evaluateCombinations(const Set<string> cities,
@@ -357,10 +371,8 @@ bool canOfferUniversalCoverage(Set<string>& cities,
     //   at each element, only look to the right to generate combinations as
     //   you don't want duplicates
     Vector< Vector< Set<string> > > coverageCombinations;
-    coverageCombinations = getAllPossibleLocationCombinations(
-                                        locations, numHospitals);
+    coverageCombinations = getAllPossibleLocationCombinations(locations);
 
-    cout << coverageCombinations << endl;
     for (int i = 0; i < coverageCombinations.size(); i++) {
         cout << coverageCombinations[i] << "---" << endl;
     }
