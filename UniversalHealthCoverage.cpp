@@ -9,17 +9,15 @@
  */
 #include <iostream>
 #include <string>
+#include <vector>
 #include "set.h"
 #include "vector.h"
 #include "console.h"
 using namespace std;
 
-/* Function: canOfferUniversalCoverage(Set<string>& cities,
- *                                     Vector< Set<string> >& locations,
- *                                     int numHospitals,
- *                                     Vector< Set<string> >& result);
- * Usage: if (canOfferUniversalCoverage(cities, locations, 4, result)
- * ==================================================================
+////////// FUNCTION PROTOTYPES //////////
+
+/*
  * Given a set of cities, a list of what cities various hospitals can
  * cover, and a number of hospitals, returns whether or not it's
  * possible to provide coverage to all cities with the given number of
@@ -27,12 +25,132 @@ using namespace std;
  * result parameter.
  */
 bool canOfferUniversalCoverage(Set<string>& cities,
-                               Vector< Set<string> > locations,
+                               Vector< Set<string> >& locations,
                                int numHospitals,
-                               Vector< Set<string> > result);
+                               Vector< Set<string> >& result);
 
 bool doesLocationCombinationCoverCities(Set<string> cities,
-                                        Vector< Set<string> >& result);
+                                        Vector< Set<string> > result);
+
+Vector< Set<string> > evaluateCombinations(const Set<string> cities,
+                Vector< Vector< Set<string> > > coverageCombinations,
+                                           const int numHospitals);
+
+Vector< Vector< Set<string> > > getAllPossibleLocationCombinations(
+                                    Vector< Set<string> > locations);
+
+bool assertEquals(bool expected, bool actual);
+bool assertEquals(Vector<Set<string> > expected, Vector<Set<string> > actual);
+void testDoesLocationCombinationCoverCities();
+void testCanOfferUniversalCoverage();
+void testEvaluateCombinations();
+void runTests();
+
+////////// FUNCTION IMPLEMENTATION //////////
+
+bool doesLocationCombinationCoverCities(Set<string> cities,
+                                        Vector< Set<string> > result) {
+    if (cities.size() == 0) {
+        // Base Case: Cities is empty; All cities covered
+        return true;
+    } else if (result.size() == 0) {
+        // Base Case: All hospital locations taken into account
+        return false;
+    } else {
+        Set<string> firstHospitalCoverage = result[0];
+        result.remove(0);
+        Set<string> uncoveredCities = cities - firstHospitalCoverage;
+        return doesLocationCombinationCoverCities(uncoveredCities, result);
+    }
+}
+
+Vector< Set<string> > evaluateCombinations(const Set<string> cities,
+                Vector< Vector< Set<string> > > coverageCombinations,
+                                           const int numHospitals) {
+    // need to set the coverage combination here or it will be
+    //   blank for some reason after
+    Vector< Set<string> > blank;
+    const Vector< Set<string> > toEvaluate =
+    (coverageCombinations.size() != 0) ? coverageCombinations[0] : blank;
+    
+    if (coverageCombinations.size() == 0) {
+        Vector< Set<string> > blank;
+        return blank;
+    } else {
+        if (toEvaluate.size() <= numHospitals &&
+            doesLocationCombinationCoverCities(cities,
+                                               toEvaluate)) {
+                return toEvaluate;
+            } else {
+                coverageCombinations.remove(0);
+                return evaluateCombinations(cities,
+                                            coverageCombinations,
+                                            numHospitals);
+            }
+    }
+}
+
+/*
+ * Modeled after CS106B lecture code.
+ */
+Vector<Vector<Set<string> > > subsetOfVector(Vector<Set<string> > masterSet) {
+	Vector<Vector<Set<string> > > result;
+    Vector<Set<string> > pruned = masterSet;
+    
+	if (masterSet.isEmpty()) {
+        // Base Case: Master vector is empty
+		result += masterSet;
+		return result;
+	} else {
+        // Recursive Case: Pull the first vector and obtain all subsets of
+        //   the remaining elements. All of those subsets are subsets of the
+        //   master set, as are all sets formed by taking one of those sets
+        //   and adding the original element back in.
+
+		Set<string> elem = masterSet[0];
+        pruned.remove(0);
+
+		foreach (Vector<Set<string> > subset in subsetOfVector(pruned)) {
+			result += subset;
+            
+            subset.add(elem);
+			result += subset;
+		}
+		return result;
+	}
+}
+
+bool canOfferUniversalCoverage(Set<string>& cities,
+                               Vector< Set<string> >& locations,
+                               int numHospitals,
+                               Vector< Set<string> >& result) {
+    
+    // STEP 1: Determine Combinations of Locations <= numHospitals
+    //   Iterate over each element in the vector $locations
+    //   and determine all combinations;
+    //   at each element, only look to the right to generate combinations as
+    //   you don't want duplicates
+    Vector< Vector< Set<string> > > coverageCombinations;
+    coverageCombinations = subsetOfVector(locations);
+
+    // STEP 2: Evaluate whether any possible combination works
+    Vector< Set<string> > resultCombo = evaluateCombinations(cities,
+                                                        coverageCombinations,
+                                                        numHospitals);
+    if (resultCombo.size() == 0) {
+        return false;
+    } else {
+        result = resultCombo;
+        return true;
+    }
+}
+
+int main() {
+    runTests();
+    return 0;
+}
+
+////////// UNIT TESTS //////////
 
 bool assertEquals(bool expected, bool actual) {
     if (expected == actual) {
@@ -43,26 +161,40 @@ bool assertEquals(bool expected, bool actual) {
     }
 }
 
+bool assertEquals(Vector<Set<string> > expected, Vector<Set<string> > actual) {
+    if (expected.size() != actual.size()) {
+        cout << "Unequal Vectors" << endl;
+        return false;
+    }
+    for (int i = 0; i < expected.size(); i++) {
+        if (expected[i] != actual[i]) {
+            cout << "Vector " << i << " is unequal" << endl;
+            return false;
+        }
+    }
+    return true;
+}
+
 void testDoesLocationCombinationCoverCities() {
     Set<string> cities1;
     cities1 += "A", "B", "C", "D", "E", "F";
-
+    
     Set<string> hospital1;
     hospital1 += "A", "B", "C";
-
+    
     Set<string> hospital2;
     hospital2 += "A", "C", "D";
-
+    
     Set<string> hospital3;
     hospital3 += "C", "E", "F";
-
+    
     Vector< Set<string> > locationCombination;
     locationCombination.add(hospital1);
     locationCombination.add(hospital2);
     locationCombination.add(hospital3);
-
+    
     assertEquals(true, doesLocationCombinationCoverCities(cities1,
-                                                         locationCombination));
+                                                          locationCombination));
     Set<string> cities2;
     cities2 += "A", "B", "C", "D", "E", "F";
     
@@ -79,127 +211,108 @@ void testDoesLocationCombinationCoverCities() {
     locationCombination2.add(hospitalA1);
     locationCombination2.add(hospitalA2);
     locationCombination2.add(hospitalA3);
-
+    
     assertEquals(false, doesLocationCombinationCoverCities(cities2,
-                                                         locationCombination2));
+                                                           locationCombination2));
 }
 
 void testCanOfferUniversalCoverage() {
     Set<string> cities1;
     cities1 += "A", "B", "C", "D", "E", "F";
-
+    
     Set<string> hospitalCoverage1;
     hospitalCoverage1 += "A", "B", "C";
-
+    
     Set<string> hospitalCoverage2;
     hospitalCoverage2 += "A", "C", "D";
-
+    
     Set<string> hospitalCoverage3;
     hospitalCoverage3 += "B", "F";
     
     Set<string> hospitalCoverage4;
     hospitalCoverage4 += "C", "E", "F";
-
+    
     Vector< Set<string> > locations1;
     locations1.add(hospitalCoverage1);
     locations1.add(hospitalCoverage2);
     locations1.add(hospitalCoverage3);
     locations1.add(hospitalCoverage4);
-
+    
     Vector< Set<string> > result1;
     
     assertEquals(true, canOfferUniversalCoverage(cities1,
-                              locations1,
-                              3,
-                              result1));
+                                                 locations1,
+                                                 3,
+                                                 result1));
+    
+    assertEquals(false, canOfferUniversalCoverage(cities1,
+                                                  locations1,
+                                                  2,
+                                                  result1));
+    
+}
+
+void testEvaluateCombinations() {
+    Set<string> cities1;
+    cities1 += "A", "B", "C", "D", "E", "F";
+    
+    Set<string> hospitalCoverage1;
+    hospitalCoverage1 += "A", "B", "C";
+    
+    Set<string> hospitalCoverage2;
+    hospitalCoverage2 += "A", "C", "D";
+    
+    Set<string> hospitalCoverage3;
+    hospitalCoverage3 += "B", "F";
+    
+    Set<string> hospitalCoverage4;
+    hospitalCoverage4 += "C", "E", "F";
+    
+    Set<string> hospitalCoverage5;
+    hospitalCoverage5 += "C", "F";
+    
+    Vector< Set<string> > layoutPlan1;
+    layoutPlan1.add(hospitalCoverage1);
+    layoutPlan1.add(hospitalCoverage5);
+    
+    Vector< Set<string> > layoutPlan2;
+    layoutPlan2.add(hospitalCoverage3);
+    layoutPlan2.add(hospitalCoverage5);
+    
+    Vector< Set<string> > layoutPlan3;
+    layoutPlan3.add(hospitalCoverage1);
+    layoutPlan3.add(hospitalCoverage2);
+    layoutPlan3.add(hospitalCoverage4);
+    
+    Vector< Set<string> > layoutPlan4;
+    layoutPlan4.add(hospitalCoverage1);
+    layoutPlan4.add(hospitalCoverage2);
+    
+    Vector< Vector< Set<string> > > coverageCombinations1;
+    coverageCombinations1.add(layoutPlan1);
+    coverageCombinations1.add(layoutPlan2);
+    coverageCombinations1.add(layoutPlan3);
+    Vector< Set<string> > result1 = evaluateCombinations(cities1,
+                                                         coverageCombinations1,
+                                                         3);
+    assertEquals(layoutPlan3, result1);
+    
+    // TEST2
+    Set<string> cities2;
+    cities2 += "A", "B", "C", "D", "E", "F";
+    Vector< Vector< Set<string> > > coverageCombinations2;
+    coverageCombinations2.add(layoutPlan1);
+    coverageCombinations2.add(layoutPlan2);
+    coverageCombinations2.add(layoutPlan4);
+    Vector< Set<string> > result2 = evaluateCombinations(cities2,
+                                                         coverageCombinations2,
+                                                         3);
+    Vector< Set<string> > layoutPlanE;
+    assertEquals(layoutPlanE, result2);
 }
 
 void runTests() {
     testDoesLocationCombinationCoverCities();
+    testEvaluateCombinations();
     testCanOfferUniversalCoverage();
-}
-
-bool doesLocationCombinationCoverCities(Set<string> cities,
-                                        Vector< Set<string> >& result) {
-    if (cities.size() == 0) {
-        // Base Case: Cities is empty; All cities covered
-        return true;
-    } else if (result.size() == 0) {
-        // Base Case: All hospital locations taken into account
-        return false;
-    } else {
-        Set<string> firstHospitalCoverage = result[0];
-        result.remove(0);
-        Set<string> uncoveredCities = cities - firstHospitalCoverage;
-        return doesLocationCombinationCoverCities(uncoveredCities, result);
-    }
-}
-
-bool canOfferUniversalCoverage(Set<string>& cities,
-                               Vector< Set<string> > locations,
-                               int numHospitals,
-                               Vector< Set<string> > result) {
-    Set<string> blank;
-    const Set<string> firstLocation = (locations.size() != 0) ? locations[0] : blank;
-    Vector< Set<string> > combination = result;
-    // STEP 1: Determine Combinations of Locations <= numHospitals
-    //   Iterate over each element in the vector $locations
-    //   and determine all combinations;
-    //   at each element, only look to the right to generate combinations as
-    //   you don't want duplicates
-    //   one by one, as each combination is generated, store it in $result,
-    //   and evaluate it to determine whether it covers all cities.
-    //   This evaluation is done by subtracting recursively from the
-    //   combination, stored in $result, involving each element;
-    if (result.size() <= numHospitals &&
-          doesLocationCombinationCoverCities(cities, result)) {
-        return true;
-    } else if (locations.size() <= numHospitals &&
-          doesLocationCombinationCoverCities(cities, locations)) {
-        result = locations;
-        cout << "Location Found" << endl;
-        return true;
-    } else if (locations.size() == 0) {
-        cout << "Location 0" << endl;
-        return false;
-    } else {
-        cout << "1Locations: " << locations << endl;
-        cout << "1Result: " << result << endl;
-        combination.add(firstLocation);
-        locations.remove(0);
-        canOfferUniversalCoverage(cities, locations, numHospitals, combination);
-        
-        if (result.size() > 0) {
-         result.remove(0);   
-        }
-        canOfferUniversalCoverage(cities, locations, numHospitals, combination);
-    }
-}
-
-
-
-//Vector< Vector< Set<string> > > getAllPossibleLocationCombinations() {
-//}
-
-//bool canOfferUniversalCoverage(Set<string>& cities,
-//                               Vector< Set<string> >& locations,
-//                               int numHospitals,
-//                               Vector< Set<string> >& result) {
-    // STEP 1: Determine Combinations of Locations <= numHospitals
-    //   Iterate over each element in the vector and generate all
-    //   combinations involving each element; at each element, only
-    //   look to the right to generate combinations as
-    //   you don't want duplicates
-    
-    // STEP 2: Iteratr Over Groupings of Locations That
-    //   Look for a Union function on Sets that does Set subtraction
-    //     when locations - cities... recursively look for empty cities
-    
-    
-    // STEP 3: Clear() $result and return false
-//}
-
-int main() {
-    runTests();
-    return 0;
 }
