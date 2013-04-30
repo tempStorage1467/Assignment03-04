@@ -92,6 +92,11 @@ Vector< Set<string> > evaluateCombinations(const Set<string> cities,
 
 /*
  * Modeled after CS106B lecture code.
+ *
+ * I am generating all the possible combinations, many of which are absolutely
+ *    impossible.
+ *
+ * I am storing all my possible options -- I keep on generating
  */
 Vector<Vector<Set<string> > > subsetOfVector(Vector<Set<string> > masterSet) {
     Vector<Vector<Set<string> > > result;
