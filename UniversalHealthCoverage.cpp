@@ -111,10 +111,10 @@ Vector<Vector<Set<string> > > subsetOfVector(Vector<Set<string> > masterSet) {
         pruned.remove(0);
 
 		foreach (Vector<Set<string> > subset in subsetOfVector(pruned)) {
-			result += subset;
-            
+            result += subset;
+
             subset.add(elem);
-			result += subset;
+            result += subset;
 		}
 		return result;
 	}
