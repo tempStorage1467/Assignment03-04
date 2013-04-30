@@ -94,20 +94,20 @@ Vector< Set<string> > evaluateCombinations(const Set<string> cities,
  * Modeled after CS106B lecture code.
  */
 Vector<Vector<Set<string> > > subsetOfVector(Vector<Set<string> > masterSet) {
-	Vector<Vector<Set<string> > > result;
+    Vector<Vector<Set<string> > > result;
     Vector<Set<string> > pruned = masterSet;
     
 	if (masterSet.isEmpty()) {
         // Base Case: Master vector is empty
-		result += masterSet;
-		return result;
+        result += masterSet;
+        return result;
 	} else {
         // Recursive Case: Pull the first vector and obtain all subsets of
         //   the remaining elements. All of those subsets are subsets of the
         //   master set, as are all sets formed by taking one of those sets
         //   and adding the original element back in.
-
-		Set<string> elem = masterSet[0];
+        
+        Set<string> elem = masterSet[0];
         pruned.remove(0);
 
 		foreach (Vector<Set<string> > subset in subsetOfVector(pruned)) {
