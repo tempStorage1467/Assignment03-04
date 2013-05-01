@@ -63,7 +63,7 @@ bool recListCombinationsOf(Vector<Set<string> > s,
                            Vector<Set<string> > soFar,
                            Set<string>& cities,
                            Vector< Set<string> >& result) {
-	if (k == 0) {
+    if (k == 0) {
         /* Base case 1: If there are no more elements to pick, output
          * what we have so far.
          */
@@ -71,28 +71,28 @@ bool recListCombinationsOf(Vector<Set<string> > s,
             result = soFar;
             return true;
         }
-	} else if (k != 0 && k <= s.size()) {
-		/* Pick some element from the set. */
-		Set<string> elem = s[0];
+    } else if (k != 0 && k <= s.size()) {
+        /* Pick some element from the set. */
+        Set<string> elem = s[0];
         Vector<Set<string> > soFarAdjusted = soFar;
         soFarAdjusted.add(elem);
         
-		/* Option 1: Pick this element. Then we need k - 1 elements from
+        /* Option 1: Pick this element. Then we need k - 1 elements from
 		 * the remainder of the set.
 		 */
         Vector<Set<string> > sPruned = s;
         sPruned.remove(0);
-		if (recListCombinationsOf(sPruned, k - 1,
+        if (recListCombinationsOf(sPruned, k - 1,
                                   soFarAdjusted,
                                   cities,
                                   result)) {
             return true;
         }
         
-		/* Option 2: Don't pick this element. Then we need k elements from
+        /* Option 2: Don't pick this element. Then we need k elements from
 		 * the remainder of the set.
 		 */
-		if (recListCombinationsOf(sPruned,
+        if (recListCombinationsOf(sPruned,
                                   k,
                                   soFar,
                                   cities,
