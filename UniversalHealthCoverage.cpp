@@ -99,7 +99,7 @@ bool recListCombinationsOf(Vector<Set<string> > s,
                                   result)) {
             return true;
         }
-	}
+    }
 }
 
 bool canOfferUniversalCoverage(Set<string>& cities,
