@@ -64,14 +64,17 @@ bool recListCombinationsOf(Vector<Set<string> > s,
                            Set<string>& cities,
                            Vector< Set<string> >& result) {
     if (k == 0) {
-        /* Base case 1: If there are no more elements to pick, output
-         * what we have so far.
-         */
+        // Base Case: Nothing left; the top of the combination has been reached
+        //   Check to determine whether combination is valid. If so,
+        //   return true and store as a result.
         if (doesLocationCombinationCoverCities(cities, soFar)) {
             result = soFar;
             return true;
         }
-    } else if (k != 0 && k <= s.size()) {
+    } else if (k <= s.size()) {
+        // Recursive Case: We are not at the top of the combination triangle,
+        //   so we can climb another level toward the top.
+
         /* Pick some element from the set. */
         Set<string> elem = s[0];
         Vector<Set<string> > soFarAdjusted = soFar;
