@@ -26,18 +26,41 @@ bool canOfferUniversalCoverage(Set<string>& cities,
                                Vector< Set<string> >& locations,
                                int numHospitals,
                                Vector< Set<string> >& result);
-
+/*
+ * Determine whether a combination of locations cover all cities.
+ */
 bool doesLocationCombinationCoverCities(Set<string> cities,
                                         Vector< Set<string> > result);
 
+/*
+ * Helper function for running unit tests.
+ */
 bool assertEquals(bool expected, bool actual);
+
+/*
+ * Helper function for running unit tests.
+ */
 bool assertEquals(Vector<Set<string> > expected, Vector<Set<string> > actual);
+
+/*
+ * Unit test for the doesLocationCombinationCoverCities() method.
+ */
 void testDoesLocationCombinationCoverCities();
+
+/*
+ * Unit test for the canOfferUniversalCoverage() method.
+ */
 void testCanOfferUniversalCoverage();
+
+/*
+ * Run unit tests.
+ */
 void runTests();
 
 ////////// FUNCTION IMPLEMENTATION //////////
-
+/*
+ * Determine whether a combination of hospital locations covers all cities.
+ */
 bool doesLocationCombinationCoverCities(Set<string> cities,
                                         Vector< Set<string> > result) {
     if (cities.size() == 0) {
@@ -54,7 +77,8 @@ bool doesLocationCombinationCoverCities(Set<string> cities,
     }
 }
 
-/* Recursively lists off all combinations of k elements from the master
+/* 
+ * Recursively lists off all combinations of k elements from the master
  * set s, under the assumption we've already built up the partial set
  * soFar.
  */
@@ -75,14 +99,10 @@ bool recListCombinationsOf(Vector<Set<string> > s,
         // Recursive Case: We are not at the top of the combination triangle,
         //   so we can climb another level toward the top.
 
-        /* Pick some element from the set. */
         Set<string> elem = s[0];
         Vector<Set<string> > soFarAdjusted = soFar;
         soFarAdjusted.add(elem);
-        
-        /* Option 1: Pick this element. Then we need k - 1 elements from
-		 * the remainder of the set.
-		 */
+
         Vector<Set<string> > sPruned = s;
         sPruned.remove(0);
         if (recListCombinationsOf(sPruned, k - 1,
@@ -92,9 +112,6 @@ bool recListCombinationsOf(Vector<Set<string> > s,
             return true;
         }
         
-        /* Option 2: Don't pick this element. Then we need k elements from
-		 * the remainder of the set.
-		 */
         if (recListCombinationsOf(sPruned,
                                   k,
                                   soFar,
@@ -105,6 +122,10 @@ bool recListCombinationsOf(Vector<Set<string> > s,
     }
 }
 
+/*
+ * Determine whether, given a set of cities and a vector of hospital location
+ *   maps, there is a hospital location combination that can cover all cities.
+ */
 bool canOfferUniversalCoverage(Set<string>& cities,
                                Vector< Set<string> >& locations,
                                int numHospitals,
@@ -126,7 +147,9 @@ int main() {
 }
 
 ////////// UNIT TESTS //////////
-
+/*
+ * Unit test helper function to compare boolean values.
+ */
 bool assertEquals(bool expected, bool actual) {
     if (expected == actual) {
         return true;
@@ -136,6 +159,9 @@ bool assertEquals(bool expected, bool actual) {
     }
 }
 
+/*
+ * Unit test helper function to compare vectors of sets.
+ */
 bool assertEquals(Vector<Set<string> > expected, Vector<Set<string> > actual) {
     if (expected.size() != actual.size()) {
         cout << "Unequal Vectors" << endl;
@@ -150,6 +176,9 @@ bool assertEquals(Vector<Set<string> > expected, Vector<Set<string> > actual) {
     return true;
 }
 
+/*
+ * Unit test for doesLocationCombinationCoverCities() method.
+ */
 void testDoesLocationCombinationCoverCities() {
     Set<string> cities1;
     cities1 += "A", "B", "C", "D", "E", "F";
@@ -191,6 +220,9 @@ void testDoesLocationCombinationCoverCities() {
                                                         locationCombination2));
 }
 
+/*
+ * Unit test for canOfferUniversalCoverage() method.
+ */
 void testCanOfferUniversalCoverage() {
     Set<string> cities1;
     cities1 += "A", "B", "C", "D", "E", "F";
@@ -227,6 +259,9 @@ void testCanOfferUniversalCoverage() {
     
 }
 
+/*
+ * Run unit tests.
+ */
 void runTests() {
     testDoesLocationCombinationCoverCities();
     testCanOfferUniversalCoverage();
